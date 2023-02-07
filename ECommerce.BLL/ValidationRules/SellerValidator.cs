@@ -7,7 +7,8 @@ namespace ECommerce.BLL.ValidationRules
     {
         public SellerValidator()
         {
-
+            RuleFor(i => i.Name).NotNull().WithMessage("İsim alanı boş geçilemez");
+            RuleFor(i => i.SurName).NotNull().WithMessage("Soy Ad alanı boş geçilemez");
         }
     }
 }

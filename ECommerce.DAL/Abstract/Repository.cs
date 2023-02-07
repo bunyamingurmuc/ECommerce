@@ -22,6 +22,7 @@ namespace ECommerce.DAL.Abstract
 
         public List<T> GetAll()
         {
+
             return _context.Set<T>().AsNoTracking().ToList();
 
         }
@@ -43,6 +44,7 @@ namespace ECommerce.DAL.Abstract
             _context.Entry(unchanged).CurrentValues.SetValues(entity);
             _context.SaveChanges();
         }
+
 
 
 
@@ -88,8 +90,15 @@ namespace ECommerce.DAL.Abstract
         public async Task<T> CreateAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
+            await _context.SaveChangesAsync();
             return entity;
         }
 
+        public async Task<List<T>> CreateRangeAsync(List<T> entities)
+        {
+            await _context.Set<T>().AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
+            return entities;
+        }
     }
 }

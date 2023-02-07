@@ -1,14 +1,16 @@
-﻿using ECommerce.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ECommerce.Common;
+using ECommerce.Entity;
 
 namespace ECommerce.BLL.Interfaces
 {
     public interface ISellerService:IService<Seller>
     {
+        Task<IResponse<List<Product>>> SalesThisMonthsAsync(int sellerId);
+        Task<IResponse<List<AppUser>>> NewCustomerThisMonthAsync(int sellerId);
+        Task<IResponse<Seller>> GetByIdAsyncR(int id);
+        Task<IResponse<List<Seller>>> GetAllAsyncR();
+
+
 
     }
 }

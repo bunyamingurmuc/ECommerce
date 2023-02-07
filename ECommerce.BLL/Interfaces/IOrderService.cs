@@ -10,7 +10,14 @@ namespace ECommerce.BLL.Interfaces
 {
     public interface IOrderService:IService<Order>
     {
-        Task<IResponse<Order>> CalculateAndCreateAsync(Order order);
-        IResponse<Order> CalculateAndUpdate(Order order);
+        Task<IResponse<Order>> CreateOrder(Order order,int userId);
+        Task<IResponse<Order>> UpdateOrder(Order order);
+        IResponse<int> GetCurrentMountSellerOrderQuantity(Seller seller);
+        IResponse<double> GetCompereMountOrderRate(Seller seller);
+        Task<IResponse<Order>> GetByIdAsyncR(int id);
+        Task<IResponse<List<Order>>> GetAllAsyncR();
+       
+
+
     }
 }

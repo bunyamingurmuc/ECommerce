@@ -12,7 +12,7 @@ namespace ECommerce.BLL.ValidationRules
     {
         public CardValidator()
         {
-
+           
         }
     }
 }

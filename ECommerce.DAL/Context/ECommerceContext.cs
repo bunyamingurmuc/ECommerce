@@ -1,6 +1,9 @@
 ﻿using ECommerce.DAL.Configurations;
+using ECommerce.DAL.Configurations.AutoIncludes;
 using ECommerce.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using ECommerce.DAL.Configurations.Relations;
 
 namespace ECommerce.DAL.Context
 {
@@ -19,24 +22,22 @@ namespace ECommerce.DAL.Context
         public DbSet<CardItem>? CardItems { get; set; }
         public DbSet<Order>? Orders { get; set; }
         public DbSet<OrderItem>? OrderItems { get; set; }
+        public DbSet<Image>? Images { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new CategoryConfigurations());
-            builder.Entity<AppUser>().Navigation(x => x.Reviews).AutoInclude();
-            builder.Entity<Product>().Navigation(x => x.Category).AutoInclude();
-            builder.Entity<Product>().Navigation(x => x.Reviews).AutoInclude();
-            builder.Entity<Product>().Navigation(x => x.Seller).AutoInclude();
-            builder.Entity<Category>().Navigation(x => x.Products).AutoInclude();
-            builder.Entity<Category>().Navigation(x => x.Seller).AutoInclude();
-            builder.Entity<Review>().Navigation(x => x.AppUser).AutoInclude();
-            builder.Entity<Review>().Navigation(x => x.Product).AutoInclude();
-            builder.Entity<Seller>().Navigation(x => x.Categories).AutoInclude();
-            builder.Entity<Seller>().Navigation(x => x.Products).AutoInclude();
-            builder.Entity<Card>()
-                .HasOne(i => i.AppUser)
-                .WithOne(i => i.Card)
-                .HasForeignKey<AppUser>(x => x.CardId);
+            builder.ApplyConfiguration(new AppUserConfig());
+            builder.ApplyConfiguration(new ProductConfig());
+            builder.ApplyConfiguration(new CategoryConfig());
+            builder.ApplyConfiguration(new ReviewConfig());
+            builder.ApplyConfiguration(new SellerConfig());
+            builder.ApplyConfiguration(new CardConfig());
+            builder.ApplyConfiguration(new CardItemConfig());
+            builder.ApplyConfiguration(new OrderConfig());
+
+            //AutoIncludes.AutoInclude(builder);
+            ApplyRelations.ApplyRelation(builder);
             base.OnModelCreating(builder);
+            
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using ECommerce.API.Extension;
 using ECommerce.BLL.Interfaces;
 using ECommerce.Entity;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ECommerce.API.Controllers
 {
@@ -17,85 +17,45 @@ namespace ECommerce.API.Controllers
             _service = service;
         }
 
+
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public ActionResult GetAll()
+        public async Task<ActionResult> GetAllAsy()
         {
-            var response = _service.GetAll();
+            var response = await _service.GetAllAsyncR();
             return this.ResponseStatusWithData(response);
         }
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public ActionResult GetById(int id)
+        public async Task<ActionResult> GetByIdAsy(int id)
         {
-            var response = _service.GetById(id);
+            var response = await _service.GetByIdAsyncR(id);
             return this.ResponseStatusWithData(response);
         }
 
         [HttpPost]
         [Route("/[controller]/[action]")]
-        public IActionResult Create(Card entity)
+        public async Task<ActionResult> CreateAsy(Card entity)
         {
-            var response = _service.CalculateAndCreate(entity);
+            //var userId = Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            //var response = await _service.CreateCard(entity,userId);
+            var response= await _service.CreateAsync(entity);
             return this.ResponseStatusWithData(response);
 
         }
 
         [HttpPut]
         [Route("/[controller]/[action]")]
-        public ActionResult Update(Card entity)
+        public async Task<ActionResult> UpdateAsy(Card entity)
         {
-            var response = _service.Update(entity);
+            var response = await _service.UpdateCard(entity);
             return this.ResponseStatusWithData(response);
         }
 
         [HttpDelete]
         [Route("/[controller]/[action]")]
-        public ActionResult Delete(int id)
-        {
-            var response = _service.Remove(id);
-            return this.ResponseStatusWithData(response);
-        }
-
-        //------------ASYNCRON ENTPOINTS----------
-
-        [HttpGet]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> GetAllAsycn()
-        {
-            var response = await _service.GetAllAsync();
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpGet]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> GetByIdAsycn(int id)
-        {
-            var response = await _service.GetByIdAsync(id);
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpPost]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> CreateAsycn(Card entity)
-        {
-            var response = await _service.CalculateAndCreateAsync(entity);
-            return this.ResponseStatusWithData(response);
-
-        }
-
-        [HttpPut]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> UpdateAsycn(Card entity)
-        {
-            var response = await _service.UpdateAsync(entity);
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpDelete]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> DeleteAsycn(int id)
+        public async Task<ActionResult> DeleteAsy(int id)
         {
             var response = await _service.RemoveAsync(id);
             return this.ResponseStatusWithData(response);

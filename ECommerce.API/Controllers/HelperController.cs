@@ -1,5 +1,7 @@
 ﻿using ECommerce.API.Extension;
+using ECommerce.API.Views.mails;
 using ECommerce.BLL.Helper;
+using ECommerce.BLL.Interfaces;
 using ECommerce.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Wkhtmltopdf.NetCore;
@@ -12,10 +14,13 @@ namespace ECommerce.API.Controllers
     {
         public static IWebHostEnvironment _environment;
         private readonly IGeneratePdf _generatePdf;
-        public HelperController(IWebHostEnvironment environment, IGeneratePdf generatePdf)
+        public readonly ICardService _CardService;
+        public readonly IAppUserService _AppUserService;
+        public HelperController(IWebHostEnvironment environment, IGeneratePdf generatePdf, IAppUserService appUserService)
         {
             _environment = environment;
             _generatePdf = generatePdf;
+            _AppUserService = appUserService;
         }
 
         [HttpPost]
@@ -34,15 +39,15 @@ namespace ECommerce.API.Controllers
         }
         [HttpPost]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> HelperInvoiceGeneratorAsync()
+        public async Task<IActionResult> HelperInvoiceGeneratorAsy()
         {
 
             var myConvertOptions = new MyConvertOptions
             {
                 FooterCenter = "\" Sayfa [page] / [topage] \"",
-               // HeaderHtml = "Views/pdfs/header.html",
+                // HeaderHtml = "Views/pdfs/header.html",
                 EnableLocalAccess = true,
-                PageOrientation=Wkhtmltopdf.NetCore.Options.Orientation.Landscape,
+                PageOrientation = Wkhtmltopdf.NetCore.Options.Orientation.Landscape,
             };
             var path = _environment.WebRootPath + "\\Upload\\" + "1.jpg";
 
@@ -51,7 +56,26 @@ namespace ECommerce.API.Controllers
             _generatePdf.SetConvertOptions(myConvertOptions);
             var result = await _generatePdf.GetPdf("pdfs/invoice", order);
             return result;
-            
+
+        }
+
+        [HttpPost]
+        [Route("/[controller]/[action]")]
+        public async Task<IActionResult> HelperReminderCardGeneratorAsy(int userId)
+        {
+            var data = await _CardService.GetAllAsyncR();
+            var reminderCard = data.Data.Where(i => i.CreatedDate < DateTime.Now.AddDays(-7)).FirstOrDefault();
+            var user = _AppUserService.GetByIdAsyncR(userId);
+
+            if (reminderCard == null)
+                return Ok();
+            var isSended = HelperFunctions.EmailSender("bunyamingurmuc@gmail.com", "mqbdazepqwodgncl",
+                "mahmutgurmuc@gmail.com", "dsadas",
+                EmailMarketingTemplateGenerator.CardReminderGenerator(reminderCard, user.Result.Data));
+            if (isSended == true)
+
+                return Ok("Gönderildi");
+            return BadRequest();
         }
     }
 }

@@ -6,9 +6,13 @@ using ECommerce.DAL.Context;
 using ECommerce.DAL.UnitOfWork;
 using ECommerce.Entity;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using ECommerce.Common;
 using Wkhtmltopdf.NetCore;
 
 namespace ECommerce.BLL.DependencyResolvers
@@ -22,6 +26,24 @@ namespace ECommerce.BLL.DependencyResolvers
             {
                 opt.UseSqlServer(configuration.GetConnectionString("Local"));
             });
+
+            //services.AddDbContext<ECommerceContext>(opt =>
+            //{
+            //    opt.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("Local"));
+            //});
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            {
+                opt.RequireHttpsMetadata = false;
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = JwtTokenSettings.Issuer,
+                    ValidAudience = JwtTokenSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtTokenSettings.Key)),
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
             services.AddWkhtmltopdf("wkhtmltopdf");
 
             services.AddScoped<IUOW, UOW>();
@@ -34,6 +56,7 @@ namespace ECommerce.BLL.DependencyResolvers
             services.AddScoped<ICardItemService, CardItemService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderItemService, OrderItemService>();
+            services.AddScoped<IImageService, ImageService>();
 
             services.AddSingleton<IValidator<AppUser>, AppUserValidator>();
             services.AddSingleton<IValidator<Category>, CategoryValidator>();
@@ -44,6 +67,8 @@ namespace ECommerce.BLL.DependencyResolvers
             services.AddSingleton<IValidator<CardItem>, CardItemValidator>();
             services.AddSingleton<IValidator<Order>, OrderValidator>();
             services.AddSingleton<IValidator<OrderItem>, OrderItemValidator>();
+            services.AddSingleton<IValidator<Image>, ImageValidator>();
         }
+       
     }
 }

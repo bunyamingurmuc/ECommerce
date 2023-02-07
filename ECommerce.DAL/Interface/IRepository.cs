@@ -13,7 +13,7 @@ namespace ECommerce.DAL.Interface
         T? Find(object id);
         T Create(T entity);
         void Update(T entity, T unchanged);
-
+        Task<List<T>> CreateRangeAsync(List<T> entities);
 
 
         Task<List<T>> GetAllAsync();

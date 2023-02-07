@@ -1,6 +1,7 @@
 ﻿using ECommerce.API.Extension;
 using ECommerce.BLL.Interfaces;
 using ECommerce.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -10,74 +11,34 @@ namespace ECommerce.API.Controllers
     public class CardItemController : ControllerBase
     {
         public readonly ICardItemService _service;
+        public readonly IProductService _productService;
 
-        public CardItemController(ICardItemService service)
+        public CardItemController(ICardItemService service, IProductService productService)
         {
             _service = service;
+            _productService = productService;
         }
 
+        [Authorize]
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public ActionResult GetAll()
+        public async Task<ActionResult> GetAllAsy()
         {
-            var response = _service.GetAll();
+            var response = await _service.GetAllAsyncR();
             return this.ResponseStatusWithData(response);
         }
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public ActionResult GetById(int id)
+        public async Task<ActionResult> GetByIdAsy(int id)
         {
-            var response = _service.GetById(id);
+            var response = await _service.GetByIdAsyncR(id);
             return this.ResponseStatusWithData(response);
         }
 
         [HttpPost]
         [Route("/[controller]/[action]")]
-        public IActionResult Create(CardItem entity)
-        {
-            var response = _service.Create(entity);
-            return this.ResponseStatusWithData(response);
-
-        }
-
-        [HttpPut]
-        [Route("/[controller]/[action]")]
-        public ActionResult Update(CardItem entity)
-        {
-            var response = _service.Update(entity);
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpDelete]
-        [Route("/[controller]/[action]")]
-        public ActionResult Delete(int id)
-        {
-            var response = _service.Remove(id);
-            return this.ResponseStatusWithData(response);
-        }
-
-        //------------ASYNCRON ENTPOINTS----------
-
-        [HttpGet]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> GetAllAsycn()
-        {
-            var response = await _service.GetAllAsync();
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpGet]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> GetByIdAsycn(int id)
-        {
-            var response = await _service.GetByIdAsync(id);
-            return this.ResponseStatusWithData(response);
-        }
-
-        [HttpPost]
-        [Route("/[controller]/[action]")]
-        public async Task<ActionResult> CreateAsycn(CardItem entity)
+        public async Task<ActionResult> CreateAsy(CardItem entity)
         {
             var response = await _service.CreateAsync(entity);
             return this.ResponseStatusWithData(response);
@@ -86,7 +47,7 @@ namespace ECommerce.API.Controllers
 
         [HttpPut]
         [Route("/[controller]/[action]")]
-        public async Task<ActionResult> UpdateAsycn(CardItem entity)
+        public async Task<ActionResult> UpdateAsy(CardItem entity)
         {
             var response = await _service.UpdateAsync(entity);
             return this.ResponseStatusWithData(response);
@@ -94,8 +55,12 @@ namespace ECommerce.API.Controllers
 
         [HttpDelete]
         [Route("/[controller]/[action]")]
-        public async Task<ActionResult> DeleteAsycn(int id)
+        public async Task<ActionResult> DeleteAsy(int id)
         {
+            var cardItem = await _service.GetByIdAsync(id);
+            var product = await _productService.GetByIdAsync(cardItem.Data.ProductId.Value);
+            product.Data.RemoveCount += 1;
+            await _productService.UpdateAsync(product.Data);
             var response = await _service.RemoveAsync(id);
             return this.ResponseStatusWithData(response);
         }
